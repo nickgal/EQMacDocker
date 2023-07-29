@@ -53,14 +53,14 @@ WORKDIR /app
 
 COPY --from=builder /source/build/bin /app
 
-ADD Server/loginserver/login_util/*.conf /app
-ADD Server/utils/patches/*.conf /app
+ADD Server/loginserver/login_util/*.conf /app/
+ADD Server/utils/patches/*.conf /app/
 
 ADD Maps /app/Maps
 ADD Quests /app/quests
 
-ADD config/login.template.ini /app
-ADD config/eqemu_config.template.json /app
+ADD config/login.template.ini /app/
+ADD config/eqemu_config.template.json /app/
 
 ADD containers/eqemu-server/docker-entrypoint.sh /docker-entrypoint.sh
 
