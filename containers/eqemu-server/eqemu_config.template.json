@@ -15,11 +15,11 @@
       "db": "${DATABASE_NAME}"
     },
     "chatserver": {
-      "port": "7778",
-      "host": ""
+      "host": "${SERVER_ADDRESS}",
+      "port": "7778"
     },
     "mailserver": {
-      "host": "",
+      "host": "${SERVER_ADDRESS}",
       "port": "7778"
     },
     "world": {

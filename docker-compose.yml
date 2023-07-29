@@ -63,6 +63,16 @@ services:
       - db
       - world
 
+  ucs:
+    <<: *base-service
+    command: /app/ucs
+    ports:
+      - 7778:7778/tcp
+      - 7778:7778/udp
+    depends_on:
+      - db
+      - world
+
   db:
     build:
       context: .
