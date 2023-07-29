@@ -59,8 +59,8 @@ ADD Server/utils/patches/*.conf /app/
 ADD Maps /app/Maps
 ADD Quests /app/quests
 
-ADD config/login.template.ini /app/
-ADD config/eqemu_config.template.json /app/
+ADD containers/eqemu-server/login.template.ini /app/
+ADD containers/eqemu-server/eqemu_config.template.json /app/
 
 ADD containers/eqemu-server/docker-entrypoint.sh /docker-entrypoint.sh
 
