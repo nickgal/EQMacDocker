@@ -1,0 +1,69 @@
+x-base-service: &base-service
+  build:
+    context: .
+    dockerfile: containers/eqemu-server/Dockerfile
+  environment:
+    DATABASE_USER: ${DATABASE_USER:-eq}
+    DATABASE_PASSWORD: ${DATABASE_PASSWORD:-eq}
+    DATABASE_NAME: ${DATABASE_NAME:-eq}
+    SERVER_ADDRESS: ${SERVER_ADDRESS}
+    SERVER_SHORT_NAME: ${SERVER_SHORT_NAME:-EQMac Docker}
+    SERVER_LONG_NAME: ${SERVER_LONG_NAME:-EQMac Docker}
+
+services:
+  shared:
+    <<: *base-service
+    command: ['wait-for-it', 'db:3306', '--timeout=60', '--', '/app/shared_memory']
+    volumes:
+      - shared:/app/shared
+    depends_on:
+      - db
+
+  login:
+    <<: *base-service
+    command: ['wait-for-it', 'db:3306', '--timeout=60', '--', '/app/loginserver']
+    ports:
+      - 6000:6000/tcp
+      - 6000:6000/udp
+    depends_on:
+      - db
+
+  world:
+    <<: *base-service
+    command: ['wait-for-it', 'db:3306', '--timeout=60', '--', '/app/world']
+    ports:
+      - 9000:9000/tcp
+      - 9000:9000/udp
+    volumes:
+      - shared:/app/shared
+    depends_on:
+      - db
+      - shared
+
+  zone:
+    <<: *base-service
+    command: ['wait-for-it', 'db:3306', '--timeout=60', '--', '/app/eqlaunch', 'dynzone1']
+    ports:
+      - 7000-7400:7000-7400/tcp
+      - 7000-7400:7000-7400/udp
+    volumes:
+      - shared:/app/shared
+    depends_on:
+      - db
+      - world
+
+  db:
+    build:
+      context: .
+      dockerfile: containers/database/Dockerfile
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: enabled
+      MYSQL_USER: ${DATABASE_USER:-eq}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-eq}
+      MYSQL_DATABASE: ${DATABASE_NAME:-eq}
+    volumes:
+      - database:/var/lib/mysql
+
+volumes:
+  shared:
+  database:
