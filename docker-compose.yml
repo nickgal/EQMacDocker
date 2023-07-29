@@ -56,6 +56,13 @@ services:
       - db
       - world
 
+  queryserv:
+    <<: *base-service
+    command: /app/queryserv
+    depends_on:
+      - db
+      - world
+
   db:
     build:
       context: .
