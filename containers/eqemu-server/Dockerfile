@@ -43,14 +43,14 @@ RUN apt update && apt install -y \
     lua5.1 \
     lua-bitop \
     mariadb-client \
-    nano \
-    wait-for-it
+    nano
 
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/shared
 
 WORKDIR /app
 
+COPY --from=ghcr.io/ufoscout/docker-compose-wait:latest /wait /wait
 COPY --from=builder /source/build/bin /app
 
 ADD Server/loginserver/login_util/*.conf /app/

@@ -2,18 +2,19 @@ x-base-service: &base-service
   build:
     context: .
     dockerfile: containers/eqemu-server/Dockerfile
-  environment:
+  environment: &base-environment
     DATABASE_USER: ${DATABASE_USER:-eq}
     DATABASE_PASSWORD: ${DATABASE_PASSWORD:-eq}
     DATABASE_NAME: ${DATABASE_NAME:-eq}
     SERVER_ADDRESS: ${SERVER_ADDRESS}
     SERVER_SHORT_NAME: ${SERVER_SHORT_NAME:-EQMac Docker}
     SERVER_LONG_NAME: ${SERVER_LONG_NAME:-EQMac Docker}
+    WAIT_HOSTS: db:3306
 
 services:
   shared:
     <<: *base-service
-    command: ['wait-for-it', 'db:3306', '--timeout=60', '--', '/app/shared_memory']
+    command: /app/shared_memory
     volumes:
       - shared:/app/shared
     depends_on:
@@ -21,7 +22,7 @@ services:
 
   login:
     <<: *base-service
-    command: ['wait-for-it', 'db:3306', '--timeout=60', '--', '/app/loginserver']
+    command: /app/loginserver
     ports:
       - 6000:6000/tcp
       - 6000:6000/udp
@@ -30,7 +31,10 @@ services:
 
   world:
     <<: *base-service
-    command: ['wait-for-it', 'db:3306', '--timeout=60', '--', '/app/world']
+    command: /app/world
+    environment:
+      <<: *base-environment
+      WAIT_PATHS: /app/shared/base_data
     ports:
       - 9000:9000/tcp
       - 9000:9000/udp
@@ -42,7 +46,7 @@ services:
 
   zone:
     <<: *base-service
-    command: ['wait-for-it', 'db:3306', '--timeout=60', '--', '/app/eqlaunch', 'dynzone1']
+    command: ['/app/eqlaunch', 'dynzone1']
     ports:
       - 7000-7400:7000-7400/tcp
       - 7000-7400:7000-7400/udp
