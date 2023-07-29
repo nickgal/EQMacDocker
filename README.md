@@ -13,3 +13,5 @@ PhpMyAdmin
 PEQ Editor
 
 UCS & other services
+
+World salt & login key
