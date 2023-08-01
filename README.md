@@ -22,7 +22,7 @@ docker compose up
 
 ## Todo
 
-Static & boat zones
+Static zones
 
 PhpMyAdmin
 

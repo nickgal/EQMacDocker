@@ -48,8 +48,20 @@ services:
     <<: *base-service
     command: ['/app/eqlaunch', 'dynzone1']
     ports:
-      - 7000-7400:7000-7400/tcp
-      - 7000-7400:7000-7400/udp
+      - 7000-7374:7000-7374/tcp
+      - 7000-7374:7000-7374/udp
+    volumes:
+      - shared:/app/shared
+    depends_on:
+      - db
+      - world
+
+  boats:
+    <<: *base-service
+    command: ['/app/eqlaunch', 'boats']
+    ports:
+      - 7375-7400:7375-7400/tcp
+      - 7375-7400:7375-7400/udp
     volumes:
       - shared:/app/shared
     depends_on:
