@@ -38,7 +38,7 @@ RUN apt update && apt install -y \
     bash \
     gdb \
     gettext-base \
-    git-core \
+    git \
     liblua5.1-0 \
     lua5.1 \
     lua-bitop \
