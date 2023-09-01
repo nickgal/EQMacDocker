@@ -1,6 +1,6 @@
 FROM mariadb:10.5
 
-ADD Server/utils/sql/database_full/alkabor_2023-08-16-11_12.tar.gz /docker-entrypoint-initdb.d
+ADD Server/utils/sql/database_full/alkabor_2023-08-30-14_59.tar.gz /docker-entrypoint-initdb.d
 ADD Server/loginserver/login_util/tblloginserversettings.sql /docker-entrypoint-initdb.d
 RUN rm /docker-entrypoint-initdb.d/drop_system.sql
 
