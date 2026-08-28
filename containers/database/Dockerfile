@@ -1,7 +1,6 @@
 FROM mariadb:lts
 
-ADD Server/utils/sql/database_full/alkabor_2025-07-02-08_06.tar.gz /docker-entrypoint-initdb.d
-ADD Server/loginserver/login_util/tblloginserversettings.sql /docker-entrypoint-initdb.d
+ADD Server/utils/sql/database_full/alkabor_2026-08-25-20_39.tar.gz /docker-entrypoint-initdb.d
 RUN rm /docker-entrypoint-initdb.d/drop_system.sql
 
 ADD containers/database/auto_create.sql /docker-entrypoint-initdb.d/z_auto_create.sql
