@@ -9,12 +9,15 @@ x-base-service: &base-service
     SERVER_ADDRESS: ${SERVER_ADDRESS}
     SERVER_SHORT_NAME: ${SERVER_SHORT_NAME:-EQMac Docker}
     SERVER_LONG_NAME: ${SERVER_LONG_NAME:-EQMac Docker}
+    WORLD_SHARED_KEY: ${WORLD_SHARED_KEY:?Set WORLD_SHARED_KEY in .env}
     WAIT_HOSTS: db:3306
 
 services:
   shared:
     <<: *base-service
     command: /app/shared_memory
+    stdin_open: true
+    tty: true
     volumes:
       - shared:/app/shared
     depends_on:
@@ -23,6 +26,9 @@ services:
   login:
     <<: *base-service
     command: /app/loginserver
+    environment:
+      <<: *base-environment
+      LOGIN_PASSWORD_SALT: ${LOGIN_PASSWORD_SALT:?Set LOGIN_PASSWORD_SALT in .env}
     ports:
       - 6000:6000/tcp
       - 6000:6000/udp
@@ -31,12 +37,15 @@ services:
 
   world:
     <<: *base-service
-    command: /app/world
+    command: ['/app/apply_world_settings.sh', '/app/world']
     environment:
       <<: *base-environment
-      WAIT_PATHS: /app/shared/base_data
+      DYNAMIC_ZONES: ${DYNAMIC_ZONES:-10}
+      DYNAMIC_ZONE_SHUTDOWN_MINUTES: ${DYNAMIC_ZONE_SHUTDOWN_MINUTES:-}
+      STATIC_ZONES: ${STATIC_ZONES:-}
+      STATIC_ZONE_PORT_START: ${STATIC_ZONE_PORT_START:-7401}
+      STATIC_ZONE_PORT_END: ${STATIC_ZONE_PORT_END:-7425}
     ports:
-      - 9000:9000/tcp
       - 9000:9000/udp
     volumes:
       - shared:/app/shared
@@ -53,8 +62,13 @@ services:
     volumes:
       - shared:/app/shared
     depends_on:
-      - db
-      - world
+      db:
+        condition: service_started
+      # Servertalk clients resolve world's address only once, so they must
+      # restart whenever world is recreated with a new IP.
+      world:
+        condition: service_started
+        restart: true
 
   boats:
     <<: *base-service
@@ -65,15 +79,40 @@ services:
     volumes:
       - shared:/app/shared
     depends_on:
-      - db
-      - world
+      db:
+        condition: service_started
+      world:
+        condition: service_started
+        restart: true
+
+  # Runs the zones listed in STATIC_ZONES; exits at startup when that is empty.
+  static:
+    <<: *base-service
+    command: /app/static_launcher.sh
+    environment:
+      <<: *base-environment
+      STATIC_ZONES: ${STATIC_ZONES:-}
+    ports:
+      - ${STATIC_ZONE_PORT_START:-7401}-${STATIC_ZONE_PORT_END:-7425}:${STATIC_ZONE_PORT_START:-7401}-${STATIC_ZONE_PORT_END:-7425}/tcp
+      - ${STATIC_ZONE_PORT_START:-7401}-${STATIC_ZONE_PORT_END:-7425}:${STATIC_ZONE_PORT_START:-7401}-${STATIC_ZONE_PORT_END:-7425}/udp
+    volumes:
+      - shared:/app/shared
+    depends_on:
+      db:
+        condition: service_started
+      world:
+        condition: service_started
+        restart: true
 
   queryserv:
     <<: *base-service
     command: /app/queryserv
     depends_on:
-      - db
-      - world
+      db:
+        condition: service_started
+      world:
+        condition: service_started
+        restart: true
 
   ucs:
     <<: *base-service
@@ -82,8 +121,11 @@ services:
       - 7778:7778/tcp
       - 7778:7778/udp
     depends_on:
-      - db
-      - world
+      db:
+        condition: service_started
+      world:
+        condition: service_started
+        restart: true
 
   db:
     build:
@@ -96,6 +138,34 @@ services:
       MYSQL_DATABASE: ${DATABASE_NAME:-eq}
     volumes:
       - database:/var/lib/mysql
+
+  # Optional tools, enabled through COMPOSE_PROFILES in .env.
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    profiles: [phpmyadmin]
+    environment:
+      PMA_HOST: db
+    ports:
+      - ${PHPMYADMIN_PORT:-8080}:80
+    depends_on:
+      - db
+
+  peqeditor:
+    build:
+      context: .
+      dockerfile: containers/peq-editor/Dockerfile
+    profiles: [peqeditor]
+    environment:
+      DB_HOST: db
+      DB_USER: ${DATABASE_USER:-eq}
+      DB_PASSWORD: ${DATABASE_PASSWORD:-eq}
+      DB_NAME: ${DATABASE_NAME:-eq}
+      PEQ_EDITOR_PASSWORD: ${PEQ_EDITOR_PASSWORD:-}
+      WAIT_HOSTS: db:3306
+    ports:
+      - ${PEQ_EDITOR_PORT:-8081}:80
+    depends_on:
+      - db
 
 volumes:
   shared:

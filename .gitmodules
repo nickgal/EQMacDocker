@@ -7,3 +7,6 @@
 [submodule "Maps"]
 	path = Maps
 	url = https://github.com/EQMacEmu/Maps
+[submodule "PEQEditor"]
+	path = PEQEditor
+	url = https://github.com/EQMacEmu/takpphpeditor

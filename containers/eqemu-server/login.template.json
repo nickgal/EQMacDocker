@@ -1,0 +1,46 @@
+{
+  "database": {
+    "host": "db",
+    "port": "3306",
+    "db": "${DATABASE_NAME}",
+    "user": "${DATABASE_USER}",
+    "password": "${DATABASE_PASSWORD}",
+    "subsystem": "MySQL",
+    "salt": "${LOGIN_PASSWORD_SALT}"
+  },
+  "logsys_database": {
+    "host": "db",
+    "port": "3306",
+    "db": "${DATABASE_NAME}",
+    "user": "${DATABASE_USER}",
+    "password": "${DATABASE_PASSWORD}"
+  },
+  "account": {
+    "auto_create_accounts": true
+  },
+  "worldservers": {
+    "reject_duplicate_servers": false
+  },
+  "security": {
+    "unregistered_allowed": true,
+    "mode": 5,
+    "allow_password_login": true,
+    "allow_token_login": true
+  },
+  "client_configuration": {
+    "listen_port": 5998,
+    "local_network": "${SERVER_ADDRESS}",
+    "network_ip": "${SERVER_ADDRESS}"
+  },
+  "Old": {
+    "port": 6000,
+    "opcodes": "login_opcodes_oldver.conf"
+  },
+  "schema": {
+    "account_table": "tblLoginServerAccounts",
+    "world_registration_table": "tblWorldServerRegistration",
+    "world_admin_registration_table": "tblServerAdminRegistration",
+    "world_server_type_table": "tblServerListType",
+    "loginserver_setting_table": "tblloginserversettings"
+  }
+}

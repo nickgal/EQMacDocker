@@ -1,5 +1,9 @@
+-- Upstream now lists the boat zones under the zone3 launcher. Move them to the
+-- dedicated boats launcher so they stay up permanently on the ports the boats
+-- container exposes.
 UPDATE `launcher_zones`
-SET `port` = CASE
+SET `launcher` = 'boats',
+  `port` = CASE
   WHEN `zone` = 'erudnext' THEN 7375
   WHEN `zone` = 'erudsxing' THEN 7376
   WHEN `zone` = 'qeynos' THEN 7377
@@ -13,4 +17,5 @@ SET `port` = CASE
   WHEN `zone` = 'timorous' THEN 7385
   WHEN `zone` = 'iceclad' THEN 7386
 END
-WHERE `launcher` = 'boats';
+WHERE `zone` IN ('erudnext', 'erudsxing', 'qeynos', 'freporte', 'oot', 'butcher',
+  'oasis', 'nro', 'firiona', 'overthere', 'timorous', 'iceclad');
